@@ -27,7 +27,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  torch_light: ^1.0.0
+  get: ^4.6.5
+  dio: ^4.0.6
+  http: ^0.13.5
+  cached_network_image: ^3.2.1
+  flutter_rating_bar: ^4.0.1
+  readmore: ^2.2.0
+  shimmer: ^2.0.0
   flutter:
     sdk: flutter
 
