@@ -1,10 +1,15 @@
+import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:first_app/auth/model/user_model.dart';
 import 'package:first_app/auth/view/login_screen.dart';
+import 'package:first_app/search_product.dart/view/sarchProduct.dart';
 import 'package:first_app/util/style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:readmore/readmore.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../controller/product_controller.dart';
 import '../models/product_model.dart';
@@ -27,11 +32,46 @@ class _ProductCartsState extends State<ProductCarts> {
     });
   }
 
+  String _appBadgeSupported = 'Unknown';
+
+  initPlatformState() async {
+    String appBadgeSupported;
+    try {
+      bool res = await FlutterAppBadger.isAppBadgeSupported();
+      if (res) {
+        appBadgeSupported = 'Supported';
+      } else {
+        appBadgeSupported = 'Not supported';
+      }
+    } on PlatformException {
+      appBadgeSupported = 'Failed to get badge support.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _appBadgeSupported = appBadgeSupported;
+    });
+  }
+
+  Future<void> _showSearch() async {
+    await showSearch(
+      context: context,
+      delegate: SearchProduct(),
+      query: "",
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
 
     super.initState();
+    initPlatformState();
+    _addBadge();
     getDataFromAPI();
   }
 
@@ -195,6 +235,26 @@ class _ProductCartsState extends State<ProductCarts> {
         ),
         appBar: AppBar(
           title: Text('Product Cart'.toUpperCase()),
+          actions: [
+            IconButton(onPressed: _showSearch, icon: const Icon(Icons.search)),
+            IconButton(
+                onPressed: () {},
+                icon: Badge(
+                  badgeContent: const Text('3'),
+                  child: const Icon(Icons.shopping_cart),
+                )),
+            IconButton(
+                onPressed: () {
+                  // Get.to(() => const NotificationScreen());
+                },
+                icon: Badge(
+                  badgeContent: const Text('3'),
+                  child: const Icon(Icons.notifications),
+                )),
+            const SizedBox(
+              width: 20,
+            )
+          ],
         ),
         body: ListView.builder(
           itemCount: listProducts.length,
@@ -203,6 +263,11 @@ class _ProductCartsState extends State<ProductCarts> {
               elevation: 0,
               child: ExpansionTile(
                 initiallyExpanded: true,
+                trailing: IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () async {
+                      shared(listProducts[index].image);
+                    }),
                 title: Text(listProducts[index].title),
                 children: [
                   Row(
@@ -309,5 +374,22 @@ class _ProductCartsState extends State<ProductCarts> {
         ),
       ),
     );
+  }
+
+  void shared(
+    String url,
+  ) async {
+    await Share.share(
+      url,
+      subject: 'Look at this Image $url',
+    );
+  }
+
+  void _addBadge() {
+    FlutterAppBadger.updateBadgeCount(1);
+  }
+
+  void _removeBadge() {
+    FlutterAppBadger.removeBadge();
   }
 }

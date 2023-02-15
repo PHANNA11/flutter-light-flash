@@ -1,7 +1,10 @@
-import 'package:first_app/auth/view/login_screen.dart';
+import 'package:first_app/products/views/ggg.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 
-void main(List<String> args) {
+Future main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await NotificationController().init();
   runApp(const MyApp());
 }
 
@@ -12,9 +15,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: PageScreen(),
     );
   }
 }
